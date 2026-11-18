@@ -1,5 +1,6 @@
 package com.example.martechnotes;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -14,6 +15,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,6 +57,56 @@ public class MainActivity extends AppCompatActivity {
 
                     listView.setAdapter(adapter);
                 }
+        });
+        Button buttonDelete = (Button) findViewById(R.id.btnDelete);
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                String topicToDelete = edTopic.getText().toString();
+                FileManager flManager = new FileManager();
+                ArrayList<String> notes = flManager.readFromFile(getApplicationContext());
+                try {
+                    OutputStreamWriter writer = new OutputStreamWriter(getApplicationContext().openFileOutput(Constants.Notes_File_Name, Context.MODE_PRIVATE));
+                    writer.write("");
+                    writer.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                for (int i = 0; i < notes.size(); i++) {
+                    String note = notes.get(i);
+                    if (!note.startsWith(topicToDelete + "@")) {
+                        flManager.writeToFile(note + "\n", getApplicationContext());
+                    }
+                }
+
+                Toast.makeText(getApplicationContext(), "Note deleted", Toast.LENGTH_LONG).show();
+            }
+        });
+        Button buttonEdit = (Button) findViewById(R.id.btnEdit);
+        buttonEdit.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                String topicToEdit = edTopic.getText().toString();
+                String newContent = edContent.getText().toString();
+                FileManager flManager = new FileManager();
+                ArrayList<String> notes = flManager.readFromFile(getApplicationContext());
+
+                // issivalau faila
+                try {
+                    OutputStreamWriter writer = new OutputStreamWriter(getApplicationContext().openFileOutput(Constants.Notes_File_Name, Context.MODE_PRIVATE));
+                    writer.write("");
+                    writer.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                for (int i = 0; i < notes.size(); i++) {
+                    String note = notes.get(i);
+                    if (note.startsWith(topicToEdit + "@")) {
+                        flManager.writeToFile(topicToEdit + "@" + newContent + "\n", getApplicationContext());
+                    } else {
+                        flManager.writeToFile(note + "\n", getApplicationContext());
+                    }
+                }
+                Toast.makeText(getApplicationContext(), "Note Edited!", Toast.LENGTH_LONG).show();
+            }
         });
     }
 }
